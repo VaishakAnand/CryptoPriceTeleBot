@@ -1,9 +1,17 @@
 require("dotenv").config();
+const express = require("express");
 const Telegraf = require("telegraf");
 const { Spot } = require("@binance/connector");
 
+const app = express();
 const bot = new Telegraf.Telegraf(process.env.BOT_TOKEN);
 const client = new Spot();
+
+app.listen(process.env.PORT);
+
+app.get("/", (req, res) => {
+  res.sendStatus(200);
+});
 
 bot.command("priceAlert", (ctx) => {
   console.log(`New priceAlert request: ${ctx.update.message.text}`);
@@ -81,7 +89,9 @@ bot.command("priceAlert", (ctx) => {
           );
           pingTillSuccess(messageId);
         } else {
-          console.log(`priceAlert request SUCCESS: ${ticker} ${comparison} ${value}`);
+          console.log(
+            `priceAlert request SUCCESS: ${ticker} ${comparison} ${value}`
+          );
           bot.telegram.sendMessage(
             ctx.chat.id,
             `Reached target alert price value for ${ticker}.\nTarget: ${comparison} ${value}\nCurrent price: ${price}`,
