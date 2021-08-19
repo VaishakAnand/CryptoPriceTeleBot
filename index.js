@@ -6,9 +6,11 @@ const bot = new Telegraf.Telegraf(process.env.BOT_TOKEN);
 const client = new Spot();
 
 bot.command("priceAlert", (ctx) => {
+  console.log(`New priceAlert request: ${ctx.update.message.text}`);
   const args = ctx.update.message.text.split(" ");
 
   if (args.length != 4) {
+    console.error(`Invalid priceAlert request argument format`);
     bot.telegram.sendMessage(
       ctx.chat.id,
       "Please input the correct number of arguments!\nE.g: /priceAlert ETHUSDT > 3000",
@@ -23,6 +25,7 @@ bot.command("priceAlert", (ctx) => {
 
   const acceptableComparisons = [">", "<", "=", "<=", ">="];
   if (isNaN(value)) {
+    console.error(`Invalid priceAlert request value`);
     bot.telegram.sendMessage(
       ctx.chat.id,
       "The value has to be a number!\nE.g: /priceAlert ETHUSDT > 3000",
@@ -30,6 +33,7 @@ bot.command("priceAlert", (ctx) => {
     );
     return;
   } else if (!acceptableComparisons.includes(comparison)) {
+    console.error(`Invalid priceAlert request comparison`);
     bot.telegram.sendMessage(
       ctx.chat.id,
       "Please input an appropriate comparison symbol!\n" +
@@ -44,8 +48,6 @@ bot.command("priceAlert", (ctx) => {
     setTimeout(() => {
       return client.tickerPrice(ticker).then((response) => {
         const price = response.data.price;
-        console.log(response.data);
-
         let isSuccess = true;
         switch (comparison) {
           case ">":
@@ -79,6 +81,7 @@ bot.command("priceAlert", (ctx) => {
           );
           pingTillSuccess(messageId);
         } else {
+          console.log(`priceAlert request SUCCESS: ${ticker} ${comparison} ${value}`);
           bot.telegram.sendMessage(
             ctx.chat.id,
             `Reached target alert price value for ${ticker}.\nTarget: ${comparison} ${value}\nCurrent price: ${price}`,
