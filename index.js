@@ -5,15 +5,6 @@ const { Spot } = require("@binance/connector");
 const bot = new Telegraf.Telegraf(process.env.BOT_TOKEN);
 const client = new Spot();
 
-bot.command("start", (ctx) => {
-  console.log(ctx.from);
-  bot.telegram.sendMessage(
-    ctx.chat.id,
-    "hello there! Welcome to my new telegram bot.",
-    {}
-  );
-});
-
 bot.command("priceAlert", (ctx) => {
   const args = ctx.update.message.text.split(" ");
 
@@ -84,13 +75,13 @@ bot.command("priceAlert", (ctx) => {
             ctx.chat.id,
             messageId,
             undefined,
-            `Will notify you when ${ticker} ${comparison} ${value}\nLatest pinged price: ${price}\nPinged at: ${time}`
+            `Will notify you when ${ticker} ${comparison} ${value}.\nLatest pinged price: ${price}\nPinged at: ${time}`
           );
           pingTillSuccess(messageId);
         } else {
           bot.telegram.sendMessage(
             ctx.chat.id,
-            `Reached target alert price value for ${ticker}\nTarget: ${comparison} ${value}\nCurrent price: ${price}`,
+            `Reached target alert price value for ${ticker}.\nTarget: ${comparison} ${value}\nCurrent price: ${price}`,
             {}
           );
         }
@@ -101,7 +92,7 @@ bot.command("priceAlert", (ctx) => {
   return bot.telegram
     .sendMessage(
       ctx.chat.id,
-      `Will notify you when ${ticker} ${comparison} ${value}`,
+      `Will notify you when ${ticker} ${comparison} ${value}.`,
       {}
     )
     .then((messageDetails) => {
