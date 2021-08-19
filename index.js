@@ -1,6 +1,5 @@
 require("dotenv").config();
 const Telegraf = require("telegraf");
-const axios = require("axios");
 const { Spot } = require("@binance/connector");
 
 const bot = new Telegraf.Telegraf(process.env.BOT_TOKEN);
@@ -80,22 +79,23 @@ bot.command("priceAlert", (ctx) => {
         }
 
         if (!isSuccess) {
+          var time = new Date().toLocaleTimeString();
           bot.telegram.editMessageText(
             ctx.chat.id,
             messageId,
             undefined,
-            `Will notify you when ${ticker} ${comparison} ${value}\nLatest pinged price: ${price}`
+            `Will notify you when ${ticker} ${comparison} ${value}\nLatest pinged price: ${price}\nPinged at: ${time}`
           );
           pingTillSuccess(messageId);
         } else {
           bot.telegram.sendMessage(
             ctx.chat.id,
-            `Reached target alert price value for ${ticker}\nTarget: ${comparison} ${value}\nCurrent: ${price}`,
+            `Reached target alert price value for ${ticker}\nTarget: ${comparison} ${value}\nCurrent price: ${price}`,
             {}
           );
         }
       });
-    }, 10000);
+    }, 60000);
   }
 
   return bot.telegram
