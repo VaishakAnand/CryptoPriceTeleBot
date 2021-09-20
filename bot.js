@@ -229,4 +229,5 @@ bot.command("removePriceAlert", (ctx) => {
     });
   });
 });
-bot.launch();
+
+module.exports = bot;
