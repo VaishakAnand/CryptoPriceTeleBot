@@ -16,7 +16,6 @@ app.use("/api", routes);
 
 app.all("*", (req, res) => {
   res.status(400).send("Not a functional endpoint");
-})
-
+});
 
 exports.app = app;

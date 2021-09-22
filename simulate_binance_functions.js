@@ -1,5 +1,6 @@
 require("dotenv").config();
 const Binance = require("node-binance-api");
+const telebot = require("./bot.js");
 const binance = new Binance().options({
   APIKEY: process.env.BINANCE_API_KEY,
   APISECRET: process.env.BINANCE_API_SECRET,
@@ -48,6 +49,10 @@ function simulatePurchase(symbol) {
       // Purchase waiting to be filled
     }, rngAmount(0, 10000));
 
+    // Purchase Time
+    const marketOrderPurchaseTime = Date.now();
+    const limitOrderPurchaseTime = Date.now();
+
     // Number of units bought
     const marketOrderUnits = (leverage * marginAmount) / marketOrderPrice;
     const limitOrderUnits = (leverage * marginAmount) / limitOrderPrice;
@@ -67,6 +72,8 @@ function simulatePurchase(symbol) {
     let limitOrderRunning = true;
     let marketOrderSalePrice = -1;
     let limitOrderSalePrice = -1;
+    let marketOrderSaleTime = -1;
+    let limitOrderSaleTime = -1;
     const websocket = binance.futuresMarkPriceStream(symbol, (prices) => {
       const indexPrice = prices.indexPrice;
       latestPrice = indexPrice;
@@ -79,6 +86,8 @@ function simulatePurchase(symbol) {
           latestPrice >= marketOrderTakeProfitPrice)
       ) {
         marketOrderSalePrice = latestPrice;
+        marketOrderSaleTime = Date.now();
+        marketOrderRunning = false;
       }
 
       if (
@@ -87,6 +96,8 @@ function simulatePurchase(symbol) {
           latestPrice >= limitOrderTakeProfitPrice)
       ) {
         limitOrderSalePrice = latestPrice;
+        limitOrderSaleTime = Date.now();
+        limitOrderRunning = false;
       }
 
       if (!marketOrderRunning && !limitOrderRunning) {
@@ -95,23 +106,15 @@ function simulatePurchase(symbol) {
       }
     }, 1000);
 
-  });
-}
+    const marketOrderNetProfit =
+      marketOrderPrice * marketOrderUnits -
+      marketOrderSalePrice -
+      marketOrderFees;
+    const limitOrderNetProfit =
+      limitOrderPrice * limitOrderUnits - limitOrderSalePrice - limitOrderFees;
 
-function run() {
-  let latestPrice = 0;
-  const ws = binance.futuresMarkPriceStream("SOLUSDT", (prices) => {
-    const indexPrice = prices.indexPrice;
-    console.log(indexPrice);
-    latestPrice = indexPrice;
+    // Store in Database
+
+    // Send in telegram
   });
-  // console.log("WS = ", ws);
-  setInterval(function () {
-    // Terminate all websocket endpoints, every 6 sec
-    if (latestPrice > 120) {
-      binance.futuresTerminate(ws);
-      process.exit(0);
-    }
-  }, 1000);
 }
-run();
