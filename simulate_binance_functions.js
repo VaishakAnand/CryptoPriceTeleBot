@@ -164,6 +164,7 @@ function pingTillSuccess(
     const interval = setInterval(function () {
       // Maybe add the red alert signal here
       if (
+        latestPrice != 0 &&
         marketOrderRunning &&
         (latestPrice <= marketOrderStopLossPrice ||
           latestPrice >= marketOrderTakeProfitPrice)
@@ -175,6 +176,7 @@ function pingTillSuccess(
       }
 
       if (
+        latestPrice != 0 &&
         limitOrderRunning &&
         (latestPrice <= limitOrderStopLossPrice ||
           latestPrice >= limitOrderTakeProfitPrice)
@@ -185,7 +187,7 @@ function pingTillSuccess(
         limitOrderRunning = false;
       }
 
-      if (!marketOrderRunning && !limitOrderRunning) {
+      if (latestPrice != 0 && !marketOrderRunning && !limitOrderRunning) {
         binance.futuresTerminate(websocket);
         clearInterval(interval);
         res([
