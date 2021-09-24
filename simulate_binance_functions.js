@@ -32,8 +32,8 @@ function rngAmount(min, max) {
 }
 
 function simulatePurchase(symbol) {
+  console.log("Simulating Purchase for", symbol);
   binance.futuresMarkPrice(symbol).then((price) => {
-    console.log(price);
     // Place order:
     //  - Market Order -> Add rng amount
     //  - Limit Order -> Use indexPrice
@@ -75,16 +75,6 @@ function simulatePurchase(symbol) {
     const limitOrderTakeProfitPrice =
       ((100 + takeProfitPercentage / leverage) / 100) * limitOrderPrice;
 
-    console.log(
-      marketOrderPrice,
-      marketOrderStopLossPrice,
-      marketOrderTakeProfitPrice
-    );
-    console.log(
-      limitOrderPrice,
-      limitOrderStopLossPrice,
-      limitOrderTakeProfitPrice
-    );
     // Wait for either stop loss or take profit to hit
     pingTillSuccess(
       symbol,
@@ -146,8 +136,8 @@ function simulatePurchase(symbol) {
       insertTradeIntoDb(...marketOrderDetails);
       insertTradeIntoDb(...limitOrderDetails);
       // Send in telegram
-      // sendPaperTradeDetails(...marketOrderDetails);
-      // sendPaperTradeDetails(...limitOrderDetails);
+      sendPaperTradeDetails(...marketOrderDetails);
+      sendPaperTradeDetails(...limitOrderDetails);
     });
   });
 }
@@ -172,7 +162,6 @@ function pingTillSuccess(
       latestPrice = indexPrice;
     });
     const interval = setInterval(function () {
-      console.log("LOGGING:", latestPrice);
       // Maybe add the red alert signal here
       if (
         marketOrderRunning &&
@@ -210,4 +199,4 @@ function pingTillSuccess(
   });
 }
 
-simulatePurchase("SOLUSDT");
+module.exports = simulatePurchase;
