@@ -230,4 +230,43 @@ bot.command("removePriceAlert", (ctx) => {
   });
 });
 
-module.exports = bot;
+function sendPaperTradeDetails(
+  symbol,
+  buyDate,
+  sellDate,
+  orderType,
+  estimatedSettlePrice,
+  orderPrice,
+  margin,
+  leverage,
+  totalMargin,
+  unitsBought,
+  fees,
+  stopLossPrice,
+  takeProfitPrice,
+  salePrice,
+  netProfit
+) {
+  const message = `Made Paper Trade:
+    Symbol: ${symbol}
+    Order Type: ${orderType}
+    Order Price: ${orderPrice}
+    Units Bought: ${unitsBought}
+    Sale Price: ${salePrice}
+    Net Profit: ${netProfit}
+    Fees: ${fees}
+    Estimated Settle Price: ${estimatedSettlePrice}
+    Stop Loss Price: ${stopLossPrice}
+    Take Profit Price: ${takeProfitPrice}
+    Margin: ${margin}
+    Leverage: ${leverage}
+    Total Margin: ${totalMargin}
+    Buy DateTime: ${buyDate}
+    Sell DateTime: ${sellDate}`;
+  bot.telegram.sendMessage(process.env.TELE_GRP_ID, message, {});
+}
+
+module.exports = {
+  bot: bot,
+  sendPaperTradeDetails: sendPaperTradeDetails,
+};

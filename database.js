@@ -9,6 +9,26 @@ const createPriceAlertTable = `CREATE TABLE IF NOT EXISTS PriceAlerts(
   PRIMARY KEY(fromUserId, ticker, symbol, targetPrice)
 )`;
 
+const createPaperTradeTable = `CREATE TABLE IF NOT EXISTS PaperTrades(
+  symbol text,
+  buyDate text,
+  sellDate text,
+  orderType text,
+  estimatedSettlePrice double,
+  orderPrice text,
+  margin integer,
+  leverage integer,
+  totalMargin integer,
+  unitsBought double,
+  fees double,
+  stopLossPrice double,
+  takeProfitPrice double,
+  salePrice double,
+  netProfit double,
+  PRIMARY KEY(symbol, orderType, buyDate, sellDate)
+)`;
+
 db.exec(createPriceAlertTable);
+db.exec(createPaperTradeTable);
 
 module.exports = db;

@@ -1,6 +1,8 @@
 require("dotenv").config();
 const Binance = require("node-binance-api");
-const telebot = require("./bot.js");
+const telebot = require("./bot.js").bot;
+const sendPaperTradeDetails = require("./bot.js").sendPaperTradeDetails;
+const insertTradeIntoDb = require("./db/paperTradingDb.js").insertTradeIntoDb;
 const binance = new Binance().options({
   APIKEY: process.env.BINANCE_API_KEY,
   APISECRET: process.env.BINANCE_API_SECRET,
@@ -31,12 +33,13 @@ function rngAmount(min, max) {
 
 function simulatePurchase(symbol) {
   binance.futuresMarkPrice(symbol).then((price) => {
+    console.log(price);
     // Place order:
     //  - Market Order -> Add rng amount
-    //  - Limit Order -> Use estimatedSellingPrice
-    const estimatedSellingPrice = price.estimatedSellingPrice;
-    const marketOrderPrice = rngAmount(0.99, 1.01) * estimatedSellingPrice;
-    const limitOrderPrice = estimatedSellingPrice;
+    //  - Limit Order -> Use estimatedSettlePrice
+    const estimatedSettlePrice = price.estimatedSettlePrice;
+    const marketOrderPrice = rngAmount(0.99, 1.01) * estimatedSettlePrice;
+    const limitOrderPrice = estimatedSettlePrice;
 
     // Set Leverage
     const leverage = 25;
@@ -79,6 +82,7 @@ function simulatePurchase(symbol) {
       latestPrice = indexPrice;
     });
     const interval = setInterval(function () {
+      console.log("LOGGING:", latestPrice);
       // Maybe add the red alert signal here
       if (
         marketOrderRunning &&
@@ -113,8 +117,51 @@ function simulatePurchase(symbol) {
     const limitOrderNetProfit =
       limitOrderPrice * limitOrderUnits - limitOrderSalePrice - limitOrderFees;
 
-    // Store in Database
+    let marketOrderDetails = [
+      symbol,
+      marketOrderPurchaseTime,
+      marketOrderSaleTime,
+      "Market",
+      estimatedSettlePrice,
+      marketOrderPrice,
+      marginAmount,
+      leverage,
+      marginAmount * leverage,
+      marketOrderUnits,
+      marketOrderFees,
+      marketOrderStopLossPrice,
+      marketOrderTakeProfitPrice,
+      marketOrderSalePrice,
+      marketOrderNetProfit,
+    ];
 
+    let limitOrderDetails = [
+      symbol,
+      limitOrderPurchaseTime,
+      limitOrderSaleTime,
+      "Limit",
+      estimatedSettlePrice,
+      limitOrderPrice,
+      marginAmount,
+      leverage,
+      marginAmount * leverage,
+      limitOrderUnits,
+      limitOrderFees,
+      limitOrderStopLossPrice,
+      limitOrderTakeProfitPrice,
+      limitOrderSalePrice,
+      limitOrderNetProfit,
+    ];
+    // Store in Database
+    insertTradeIntoDb(...marketOrderDetails);
+    insertTradeIntoDb(...limitOrderDetails);
     // Send in telegram
+    sendPaperTradeDetails(...marketOrderDetails);
+    sendPaperTradeDetails(...limitOrderDetails);
   });
 }
+
+simulatePurchase("SOLUSDT");
+// binance.futuresMarkPrice("SOLUSDT").then(x => {
+//   console.log(x);
+// });

@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const routes = require("./routes/routes.js");
-const telebot = require("./bot.js");
+const telebot = require("./bot.js").bot;
 const app = express();
 
 app.listen(process.env.PORT || 2000);
