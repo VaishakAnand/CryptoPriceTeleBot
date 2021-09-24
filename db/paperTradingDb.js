@@ -5,7 +5,7 @@ function insertTradeIntoDb(
   buyDate,
   sellDate,
   orderType,
-  estimatedSettlePrice,
+  indexPrice,
   orderPrice,
   margin,
   leverage,
@@ -20,7 +20,7 @@ function insertTradeIntoDb(
   return new Promise((res, rej) => {
     const addTrade =
       db.prepare(`INSERT INTO PaperTrades (symbol, buyDate, sellDate, orderType,
-    estimatedSettlePrice, orderPrice, margin, leverage, totalMargin,
+    indexPrice, orderPrice, margin, leverage, totalMargin,
     unitsBought, fees, stopLossPrice, takeProfitPrice, salePrice, netprofit)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
     addTrade.run(
@@ -28,7 +28,7 @@ function insertTradeIntoDb(
       buyDate,
       sellDate,
       orderType,
-      estimatedSettlePrice,
+      indexPrice,
       orderPrice,
       margin,
       leverage,

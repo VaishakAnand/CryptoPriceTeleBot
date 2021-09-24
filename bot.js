@@ -235,7 +235,7 @@ function sendPaperTradeDetails(
   buyDate,
   sellDate,
   orderType,
-  estimatedSettlePrice,
+  indexPrice,
   orderPrice,
   margin,
   leverage,
@@ -255,7 +255,7 @@ function sendPaperTradeDetails(
     Sale Price: ${salePrice}
     Net Profit: ${netProfit}
     Fees: ${fees}
-    Estimated Settle Price: ${estimatedSettlePrice}
+    Index Price on purchase: ${indexPrice}
     Stop Loss Price: ${stopLossPrice}
     Take Profit Price: ${takeProfitPrice}
     Margin: ${margin}

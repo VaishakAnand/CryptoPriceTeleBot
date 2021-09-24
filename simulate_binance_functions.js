@@ -36,10 +36,10 @@ function simulatePurchase(symbol) {
     console.log(price);
     // Place order:
     //  - Market Order -> Add rng amount
-    //  - Limit Order -> Use estimatedSettlePrice
-    const estimatedSettlePrice = price.estimatedSettlePrice;
-    const marketOrderPrice = rngAmount(0.99, 1.01) * estimatedSettlePrice;
-    const limitOrderPrice = estimatedSettlePrice;
+    //  - Limit Order -> Use indexPrice
+    const indexPrice = price.indexPrice;
+    const marketOrderPrice = rngAmount(0.999, 1.001) * indexPrice;
+    const limitOrderPrice = indexPrice;
 
     // Set Leverage
     const leverage = 25;
@@ -63,13 +63,103 @@ function simulatePurchase(symbol) {
     const marketOrderFees = leverage * marginAmount * (0.036 / 100);
     const limitOrderFees = leverage * marginAmount * (0.018 / 100);
 
+    const stopLossPercentage = -10;
+    const takeProfitPercentage = 10;
     // Stop losses and take profit prices
-    const marketOrderStopLossPrice = 0.95 * marketOrderPrice;
-    const marketOrderTakeProfitPrice = 1.1 * marketOrderPrice;
-    const limitOrderStopLossPrice = 0.95 * limitOrderPrice;
-    const limitOrderTakeProfitPrice = 1.1 * limitOrderPrice;
+    const marketOrderStopLossPrice =
+      ((100 + stopLossPercentage / leverage) / 100) * marketOrderPrice;
+    const marketOrderTakeProfitPrice =
+      ((100 + takeProfitPercentage / leverage) / 100) * marketOrderPrice;
+    const limitOrderStopLossPrice =
+      ((100 + stopLossPercentage / leverage) / 100) * limitOrderPrice;
+    const limitOrderTakeProfitPrice =
+      ((100 + takeProfitPercentage / leverage) / 100) * limitOrderPrice;
 
+    console.log(
+      marketOrderPrice,
+      marketOrderStopLossPrice,
+      marketOrderTakeProfitPrice
+    );
+    console.log(
+      limitOrderPrice,
+      limitOrderStopLossPrice,
+      limitOrderTakeProfitPrice
+    );
     // Wait for either stop loss or take profit to hit
+    pingTillSuccess(
+      symbol,
+      marketOrderStopLossPrice,
+      marketOrderTakeProfitPrice,
+      limitOrderStopLossPrice,
+      limitOrderTakeProfitPrice
+    ).then((orderFulfilled) => {
+      let marketOrderSaleTime = orderFulfilled[1];
+      let limitOrderSaleTime = orderFulfilled[3];
+      let marketOrderSalePrice = orderFulfilled[0];
+      let limitOrderSalePrice = orderFulfilled[2];
+
+      const marketOrderNetProfit =
+        marketOrderSalePrice * marketOrderUnits -
+        marketOrderPrice * marketOrderUnits -
+        marketOrderFees;
+      const limitOrderNetProfit =
+        limitOrderSalePrice * limitOrderUnits -
+        limitOrderPrice * limitOrderUnits -
+        limitOrderFees;
+
+      let marketOrderDetails = [
+        symbol,
+        marketOrderPurchaseTime,
+        marketOrderSaleTime,
+        "Market",
+        indexPrice,
+        marketOrderPrice,
+        marginAmount,
+        leverage,
+        marginAmount * leverage,
+        marketOrderUnits,
+        marketOrderFees,
+        marketOrderStopLossPrice,
+        marketOrderTakeProfitPrice,
+        marketOrderSalePrice,
+        marketOrderNetProfit,
+      ];
+
+      let limitOrderDetails = [
+        symbol,
+        limitOrderPurchaseTime,
+        limitOrderSaleTime,
+        "Limit",
+        indexPrice,
+        limitOrderPrice,
+        marginAmount,
+        leverage,
+        marginAmount * leverage,
+        limitOrderUnits,
+        limitOrderFees,
+        limitOrderStopLossPrice,
+        limitOrderTakeProfitPrice,
+        limitOrderSalePrice,
+        limitOrderNetProfit,
+      ];
+      // Store in Database
+      insertTradeIntoDb(...marketOrderDetails);
+      insertTradeIntoDb(...limitOrderDetails);
+      // Send in telegram
+      // sendPaperTradeDetails(...marketOrderDetails);
+      // sendPaperTradeDetails(...limitOrderDetails);
+    });
+  });
+}
+
+function pingTillSuccess(
+  symbol,
+  marketOrderStopLossPrice,
+  marketOrderTakeProfitPrice,
+  limitOrderStopLossPrice,
+  limitOrderTakeProfitPrice
+) {
+  return new Promise((res, rej) => {
     let latestPrice = 0;
     let marketOrderRunning = true;
     let limitOrderRunning = true;
@@ -89,6 +179,7 @@ function simulatePurchase(symbol) {
         (latestPrice <= marketOrderStopLossPrice ||
           latestPrice >= marketOrderTakeProfitPrice)
       ) {
+        console.log("HIT: Market order price");
         marketOrderSalePrice = latestPrice;
         marketOrderSaleTime = Date.now();
         marketOrderRunning = false;
@@ -99,6 +190,7 @@ function simulatePurchase(symbol) {
         (latestPrice <= limitOrderStopLossPrice ||
           latestPrice >= limitOrderTakeProfitPrice)
       ) {
+        console.log("HIT: Limit order price");
         limitOrderSalePrice = latestPrice;
         limitOrderSaleTime = Date.now();
         limitOrderRunning = false;
@@ -107,61 +199,15 @@ function simulatePurchase(symbol) {
       if (!marketOrderRunning && !limitOrderRunning) {
         binance.futuresTerminate(websocket);
         clearInterval(interval);
+        res([
+          marketOrderSalePrice,
+          marketOrderSaleTime,
+          limitOrderSalePrice,
+          limitOrderSaleTime,
+        ]);
       }
     }, 1000);
-
-    const marketOrderNetProfit =
-      marketOrderPrice * marketOrderUnits -
-      marketOrderSalePrice -
-      marketOrderFees;
-    const limitOrderNetProfit =
-      limitOrderPrice * limitOrderUnits - limitOrderSalePrice - limitOrderFees;
-
-    let marketOrderDetails = [
-      symbol,
-      marketOrderPurchaseTime,
-      marketOrderSaleTime,
-      "Market",
-      estimatedSettlePrice,
-      marketOrderPrice,
-      marginAmount,
-      leverage,
-      marginAmount * leverage,
-      marketOrderUnits,
-      marketOrderFees,
-      marketOrderStopLossPrice,
-      marketOrderTakeProfitPrice,
-      marketOrderSalePrice,
-      marketOrderNetProfit,
-    ];
-
-    let limitOrderDetails = [
-      symbol,
-      limitOrderPurchaseTime,
-      limitOrderSaleTime,
-      "Limit",
-      estimatedSettlePrice,
-      limitOrderPrice,
-      marginAmount,
-      leverage,
-      marginAmount * leverage,
-      limitOrderUnits,
-      limitOrderFees,
-      limitOrderStopLossPrice,
-      limitOrderTakeProfitPrice,
-      limitOrderSalePrice,
-      limitOrderNetProfit,
-    ];
-    // Store in Database
-    insertTradeIntoDb(...marketOrderDetails);
-    insertTradeIntoDb(...limitOrderDetails);
-    // Send in telegram
-    sendPaperTradeDetails(...marketOrderDetails);
-    sendPaperTradeDetails(...limitOrderDetails);
   });
 }
 
 simulatePurchase("SOLUSDT");
-// binance.futuresMarkPrice("SOLUSDT").then(x => {
-//   console.log(x);
-// });

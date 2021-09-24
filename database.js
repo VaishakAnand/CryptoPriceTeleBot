@@ -14,7 +14,7 @@ const createPaperTradeTable = `CREATE TABLE IF NOT EXISTS PaperTrades(
   buyDate text,
   sellDate text,
   orderType text,
-  estimatedSettlePrice double,
+  indexPrice double,
   orderPrice text,
   margin integer,
   leverage integer,
