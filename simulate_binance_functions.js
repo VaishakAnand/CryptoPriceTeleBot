@@ -56,6 +56,16 @@ function simulatePurchase(symbol) {
     const limitOrderTakeProfitPrice =
       ((100 + takeProfitPercentage / leverage) / 100) * limitOrderPrice;
 
+    console.log(
+      marketOrderPrice,
+      marketOrderStopLossPrice,
+      marketOrderTakeProfitPrice
+    );
+    console.log(
+      limitOrderPrice,
+      limitOrderStopLossPrice,
+      limitOrderTakeProfitPrice
+    );
     // Wait for either stop loss or take profit to hit
     pingTillSuccess(
       symbol,
