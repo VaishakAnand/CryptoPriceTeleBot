@@ -1,6 +1,5 @@
 require("dotenv").config();
 const Binance = require("node-binance-api");
-const telebot = require("./bot.js").bot;
 const sendPaperTradeDetails = require("./bot.js").sendPaperTradeDetails;
 const insertTradeIntoDb = require("./db/paperTradingDb.js").insertTradeIntoDb;
 const binance = new Binance().options({
@@ -10,6 +9,13 @@ const binance = new Binance().options({
 
 function rngAmount(min, max) {
   return Math.random() * (max - min) + min;
+}
+
+function convertEpochToNormalTime(timeEpoch) {
+  var d = new Date(timeEpoch);
+  var utc = d.getTime() + d.getTimezoneOffset() * 60000; //This converts to UTC 00:00
+  var nd = new Date(utc + 3600000 * 8);
+  return nd.toLocaleString();
 }
 
 function simulatePurchase(symbol) {
@@ -99,8 +105,8 @@ function simulatePurchase(symbol) {
 
       let marketOrderDetails = [
         symbol,
-        marketOrderPurchaseTime,
-        marketOrderSaleTime,
+        convertEpochToNormalTime(marketOrderPurchaseTime),
+        convertEpochToNormalTime(marketOrderSaleTime),
         "Market",
         markPrice,
         marketOrderPrice,
@@ -117,8 +123,8 @@ function simulatePurchase(symbol) {
 
       let limitOrderDetails = [
         symbol,
-        limitOrderPurchaseTime,
-        limitOrderSaleTime,
+        convertEpochToNormalTime(limitOrderPurchaseTime),
+        convertEpochToNormalTime(limitOrderSaleTime),
         "Limit",
         markPrice,
         limitOrderPrice,
