@@ -142,7 +142,7 @@ function pingTillSuccess(
       latestPrice = prices.indexPrice;
     });
     const interval = setInterval(function () {
-      // console.log("LOGGING:", latestPrice);
+      console.log("LOGGING:", latestPrice);
       // Maybe add the red alert signal here
       if (
         latestPrice != 0 &&
