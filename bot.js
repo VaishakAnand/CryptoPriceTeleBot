@@ -6,6 +6,12 @@ const db = require("./database");
 const bot = new Telegraf.Telegraf(process.env.BOT_TOKEN);
 const client = new Spot();
 
+bot.command("getDB", (ctx) => {
+  ctx.replyWithDocument({
+    source: "./db.sqlite3",
+  });
+});
+
 bot.command("priceAlert", (ctx) => {
   console.log(`New priceAlert request: ${ctx.update.message.text}`);
 
