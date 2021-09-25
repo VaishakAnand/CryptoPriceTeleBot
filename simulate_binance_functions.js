@@ -18,9 +18,9 @@ function simulatePurchase(symbol) {
     // Place order:
     //  - Market Order -> Add rng amount
     //  - Limit Order -> Use indexPrice
-    const indexPrice = price.indexPrice;
-    const marketOrderPrice = rngAmount(0.999, 1.001) * indexPrice;
-    const limitOrderPrice = indexPrice;
+    const markPrice = price.markPrice;
+    const marketOrderPrice = rngAmount(0.999, 1.001) * markPrice;
+    const limitOrderPrice = markPrice;
 
     // Set Leverage
     const leverage = 25;
@@ -93,7 +93,7 @@ function simulatePurchase(symbol) {
         marketOrderPurchaseTime,
         marketOrderSaleTime,
         "Market",
-        indexPrice,
+        markPrice,
         marketOrderPrice,
         marginAmount,
         leverage,
@@ -111,7 +111,7 @@ function simulatePurchase(symbol) {
         limitOrderPurchaseTime,
         limitOrderSaleTime,
         "Limit",
-        indexPrice,
+        markPrice,
         limitOrderPrice,
         marginAmount,
         leverage,
