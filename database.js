@@ -25,6 +25,7 @@ const createPaperTradeTable = `CREATE TABLE IF NOT EXISTS PaperTrades(
   takeProfitPrice double,
   salePrice double,
   netProfit double,
+  strategy text,
   PRIMARY KEY(symbol, orderType, buyDate, sellDate)
 )`;
 

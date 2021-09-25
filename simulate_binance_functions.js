@@ -8,25 +8,6 @@ const binance = new Binance().options({
   APISECRET: process.env.BINANCE_API_SECRET,
 });
 
-function buy_with_leverage(symbol, priceToBuy) {
-  const side = "BUY";
-  // change margin type for symbol
-  // POST /fapi/v1/marginType (HMAC SHA256)
-  // symbol, marginType = ISOLATED, timestamp
-
-  // change leverage for symbol
-  // POST /fapi/v1/leverage (HMC)
-  // symbol, leverage (1 to 125), timestamp (current time stamp in ms)
-
-  // post buy order
-  // POST /fapi/v1/order (HMAC SHA256)
-  // symbol, side = BUY, type = LIMIT,
-
-  // Query buy order till filled
-  // post sell at stop loss order
-  // post sell at take profit order
-}
-
 function rngAmount(min, max) {
   return Math.random() * (max - min) + min;
 }
@@ -158,10 +139,10 @@ function pingTillSuccess(
     let marketOrderSaleTime = -1;
     let limitOrderSaleTime = -1;
     const websocket = binance.futuresMarkPriceStream(symbol, (prices) => {
-      const indexPrice = prices.indexPrice;
-      latestPrice = indexPrice;
+      latestPrice = prices.indexPrice;
     });
     const interval = setInterval(function () {
+      // console.log("LOGGING:", latestPrice);
       // Maybe add the red alert signal here
       if (
         latestPrice != 0 &&
