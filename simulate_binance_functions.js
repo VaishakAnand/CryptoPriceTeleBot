@@ -41,20 +41,29 @@ function simulatePurchase(symbol) {
     const marketOrderUnits = (leverage * marginAmount) / marketOrderPrice;
     const limitOrderUnits = (leverage * marginAmount) / limitOrderPrice;
     // Fees
-    const marketOrderFees = leverage * marginAmount * (0.036 / 100);
-    const limitOrderFees = leverage * marginAmount * (0.018 / 100);
+    const marketOrderFees = leverage * marginAmount * (0.036 / 100) * 2;
+    const limitOrderFees = leverage * marginAmount * (0.018 / 100) * 2;
 
     const stopLossPercentage = -0.2;
     const takeProfitPercentage = 0.2;
     // Stop losses and take profit prices
+    // const marketOrderStopLossPrice =
+    //   ((100 + stopLossPercentage / leverage) / 100) * marketOrderPrice;
+    // const marketOrderTakeProfitPrice =
+    //   ((100 + takeProfitPercentage / leverage) / 100) * marketOrderPrice;
+    // const limitOrderStopLossPrice =
+    //   ((100 + stopLossPercentage / leverage) / 100) * limitOrderPrice;
+    // const limitOrderTakeProfitPrice =
+    //   ((100 + takeProfitPercentage / leverage) / 100) * limitOrderPrice;
+
     const marketOrderStopLossPrice =
-      ((100 + stopLossPercentage / leverage) / 100) * marketOrderPrice;
+      ((100 + stopLossPercentage) / 100) * marketOrderPrice;
     const marketOrderTakeProfitPrice =
-      ((100 + takeProfitPercentage / leverage) / 100) * marketOrderPrice;
+      ((100 + takeProfitPercentage) / 100) * marketOrderPrice;
     const limitOrderStopLossPrice =
-      ((100 + stopLossPercentage / leverage) / 100) * limitOrderPrice;
+      ((100 + stopLossPercentage) / 100) * limitOrderPrice;
     const limitOrderTakeProfitPrice =
-      ((100 + takeProfitPercentage / leverage) / 100) * limitOrderPrice;
+      ((100 + takeProfitPercentage) / 100) * limitOrderPrice;
 
     console.log(
       marketOrderPrice,
