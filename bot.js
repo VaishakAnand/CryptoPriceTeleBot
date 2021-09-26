@@ -1,6 +1,7 @@
 require("dotenv").config();
 const Telegraf = require("telegraf");
 const { Spot } = require("@binance/connector");
+const getStats = require("./db/paperTradingDb").getStats;
 
 const db = require("./database");
 const bot = new Telegraf.Telegraf(process.env.BOT_TOKEN);
@@ -10,6 +11,22 @@ bot.command("getDB", (ctx) => {
   ctx.replyWithDocument({
     source: "./db.sqlite3",
   });
+});
+
+bot.command("getStats", (ctx) => {
+  getStats()
+    .then((stats) => {
+      let message = "No stats";
+      if (stats != undefined) {
+        message = `From all trades,
+      Total Net Profit: ${stats.netProfit}
+      Current Win Streak: ${stats.winStreak}`;
+      }
+      ctx.reply(message);
+    })
+    .catch((err) => {
+      ctx.reply(err);
+    });
 });
 
 bot.command("priceAlert", (ctx) => {
