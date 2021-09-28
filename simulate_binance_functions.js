@@ -50,8 +50,8 @@ function simulatePurchase(symbol) {
     const marketOrderFees = leverage * marginAmount * (0.036 / 100) * 2;
     const limitOrderFees = leverage * marginAmount * (0.018 / 100) * 2;
 
-    const stopLossPercentage = -5;
-    const takeProfitPercentage = 10;
+    const stopLossPercentage = -3;
+    const takeProfitPercentage = 8;
     // Stop losses and take profit prices
     // const marketOrderStopLossPrice =
     //   ((100 + stopLossPercentage / leverage) / 100) * marketOrderPrice;
