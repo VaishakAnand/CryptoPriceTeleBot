@@ -12,7 +12,7 @@ app.get("/", (req, res) => {
   res.status(200).send("Hey");
 });
 
-app.use("/api", routes);
+// app.use("/api", routes);
 
 app.all("*", (req, res) => {
   res.status(400).send("Not a functional endpoint");
