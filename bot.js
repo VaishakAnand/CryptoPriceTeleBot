@@ -9,6 +9,14 @@ const bot = new Telegraf.Telegraf(process.env.BOT_TOKEN);
 // const client = new Spot();
 const CoinGeckoClient = new CoinGecko();
 
+
+function getNormalTime() {
+  var d = new Date();
+  var utc = d.getTime() + d.getTimezoneOffset() * 60000; //This converts to UTC 00:00
+  var nd = new Date(utc + 3600000 * 8);
+  return nd.toLocaleString("en-NZ");
+}
+
 async function getCoinPrice() {
   return new Promise((res, rej) => {
    CoinGeckoClient.simple.price({
@@ -28,7 +36,7 @@ bot.command("ohmPrice", (ctx) => {
         ctx.chat.id,
         `OHM: $${firstOhmPrices["olympus"]["usd"]}\nwsOHM: $${
           firstOhmPrices["wrapped-staked-olympus"]["usd"]
-        }\nLast Pinged: ${new Date().toLocaleTimeString()}`,
+        }\nLast Pinged: ${getNormalTime()}`,
         {}
       )
       .then((messageDetails) => {
@@ -47,7 +55,7 @@ bot.command("ohmPrice", (ctx) => {
           undefined,
           `OHM: $${firstOhmPrices["olympus"]["usd"]}\nwsOHM: $${
             firstOhmPrices["wrapped-staked-olympus"]["usd"]
-          }\nLast Pinged: ${new Date().toLocaleTimeString()}`,
+          }\nLast Pinged: ${getNormalTime()}`,
           {}
         );
         pingTillSuccess(messageId);
